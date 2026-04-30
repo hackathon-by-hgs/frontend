@@ -1,0 +1,10 @@
+// Placeholder hooks - implement as needed
+export const useTheme = () => {}
+export const useNotification = () => {}
+export const useNavigation = () => {}
+export const usePagination = () => {}
+export const useForm = () => {}
+export const useKeyboard = () => {}
+export const useOrientation = () => {}
+export const useFetch = () => {}
+export const useDebounce = () => {}

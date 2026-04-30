@@ -1,0 +1,24 @@
+// src/utils/constants.ts - App-wide Constants
+export const CONSTANTS = {
+  // Timeouts
+  NFC_READ_TIMEOUT: 15000,
+  NFC_WRITE_TIMEOUT: 10000,
+  API_TIMEOUT: 30000,
+  
+  // Limits
+  MAX_AMOUNT: 1000000,
+  MIN_AMOUNT: 1,
+  MAX_NAME_LENGTH: 50,
+  MAX_TRANSFERS_PER_DAY: 100,
+  
+  // Delays
+  ANIMATION_DURATION: 300,
+  DEBOUNCE_DELAY: 300,
+  TOAST_DURATION: 3000,
+  
+  // UI
+  DEFAULT_PADDING: 16,
+  DEFAULT_BORDER_RADIUS: 12,
+}
+
+export default CONSTANTS
