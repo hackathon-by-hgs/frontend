@@ -42,7 +42,7 @@ interface AuthActions {
   setLoading: (loading: boolean) => void;
 }
 
-const secureStoreAdapter = {
+export const secureStoreAdapter = {
   getItem: async (key: string) => {
     return await secureStore.getItemAsync(key);
   },
@@ -83,7 +83,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({user:null,accessToken:null,refreshToken:null,isAuthenticated:false,})
       },
       setError: (error)=>set({error}),
-      setLoading:(isLoading)=>set({isLoading})
+      setLoading:(isLoading)=>set({isLoading})  
     }),
     {
       name: "Auth-store",

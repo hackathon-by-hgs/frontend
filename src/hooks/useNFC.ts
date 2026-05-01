@@ -42,8 +42,6 @@ export function useNfc(){
       NfcManager.cancelTechnologyRequest()
     }
   }
-
-
   return {
     write,
     read,
