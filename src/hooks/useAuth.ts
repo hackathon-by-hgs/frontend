@@ -1,7 +1,6 @@
 // useAuth.ts - Authentication hook
 import { useContext } from 'react'
 import { AuthContext } from '@/contexts'
-import type { AuthContextType } from '@/contexts'
 
 export const useAuth = () => {
   const context = useContext(AuthContext)

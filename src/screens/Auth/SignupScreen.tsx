@@ -1,17 +1,19 @@
 import React, { useState } from 'react'
 import { View, ScrollView, TextInput, Pressable, Text, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
 import { useAuth } from '@/hooks/useAuth'
-import { isValidEmail, isValidPassword, isValidPhone } from '@/utils/validation'
+import { isValidEmail, meetsApiPasswordMinLength } from '@/utils/validation'
 import { theme } from '@/theme'
 import { useRouter } from 'expo-router'
+import { useContext } from 'react'
+import { NotificationContext } from '@/contexts/NotificationContext'
 
 export default function SignupScreen() {
   const router = useRouter()
   const { signup, loading, error: authError } = useAuth()
+  const notification = useContext(NotificationContext)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
   })
@@ -34,19 +36,10 @@ export default function SignupScreen() {
       newErrors.email = 'Invalid email address'
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required'
-    } else if (!isValidPhone(formData.phone)) {
-      newErrors.phone = 'Invalid phone number'
-    }
-
     if (!formData.password) {
       newErrors.password = 'Password is required'
-    } else {
-      const validation = isValidPassword(formData.password)
-      if (!validation.isValid) {
-        newErrors.password = validation.feedback || 'Password is too weak'
-      }
+    } else if (!meetsApiPasswordMinLength(formData.password)) {
+      newErrors.password = 'Password must be at least 6 characters'
     }
 
     if (!formData.confirmPassword) {
@@ -63,12 +56,17 @@ export default function SignupScreen() {
     if (!validateForm()) return
 
     try {
-      await signup({
+      const loggedIn = await signup({
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
         password: formData.password,
       })
+      if (loggedIn) {
+        notification?.showToast('Welcome!', 'success')
+      } else {
+        notification?.showToast('Account created. Please sign in.', 'success')
+        router.push('/(auth)/login')
+      }
     } catch (err) {
       // Error is handled by useAuth hook
     }
@@ -218,43 +216,6 @@ export default function SignupScreen() {
             {errors.email && (
               <Text style={{ color: theme.colors.error, fontSize: theme.typography.fontSize.xs, marginTop: theme.spacing[4] }}>
                 {errors.email}
-              </Text>
-            )}
-          </View>
-
-          {/* Phone Input */}
-          <View style={{ marginBottom: theme.spacing[16] }}>
-            <Text
-              style={{
-                fontSize: theme.typography.fontSize.sm,
-                fontWeight: theme.typography.fontWeight.semibold,
-                color: theme.colors.text.primary,
-                marginBottom: theme.spacing[8],
-              }}
-            >
-              Phone Number
-            </Text>
-            <TextInput
-              style={{
-                borderWidth: 1,
-                borderColor: errors.phone ? theme.colors.error : theme.colors.border.primary,
-                borderRadius: theme.radius.md,
-                paddingHorizontal: theme.spacing[12],
-                paddingVertical: theme.spacing[12],
-                fontSize: theme.typography.fontSize.base,
-                color: theme.colors.text.primary,
-                backgroundColor: theme.colors.background.primary,
-              }}
-              placeholder="+1 (555) 000-0000"
-              placeholderTextColor={theme.colors.text.tertiary}
-              keyboardType="phone-pad"
-              value={formData.phone}
-              onChangeText={(text) => handleInputChange('phone', text)}
-              editable={!loading}
-            />
-            {errors.phone && (
-              <Text style={{ color: theme.colors.error, fontSize: theme.typography.fontSize.xs, marginTop: theme.spacing[4] }}>
-                {errors.phone}
               </Text>
             )}
           </View>

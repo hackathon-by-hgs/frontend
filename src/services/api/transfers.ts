@@ -1,24 +1,28 @@
-// src/services/api/transfers.ts - Transfer API
+// Transfer API — Swagger: `InitiateTransferDto`, `ExecuteTransferDto`
 import { getApiClient } from './client'
 import { API_ENDPOINTS } from '@/constants'
-import { NFCPayload } from '@/types'
 
 export const transfersApi = {
-  initiate: async (amount: number, recipientId: string): Promise<{ nfcPayload: NFCPayload }> => {
+  /** Swagger fields: `recieverId`, `amount`, `description` */
+  initiate: async (amount: number, recieverId: string, description: string): Promise<unknown> => {
     const client = getApiClient()
     const response = await client.post(API_ENDPOINTS.TRANSFER.INITIATE, {
+      recieverId,
       amount,
-      recipientId,
+      description,
     })
     return response.data
   },
 
-  confirm: async (nonce: string, transferData: any): Promise<{ success: boolean }> => {
+  /** Receiver executes transfer with signed JWT / token from NFC payload */
+  execute: async (token: string): Promise<unknown> => {
     const client = getApiClient()
-    const response = await client.post(API_ENDPOINTS.TRANSFER.CONFIRM, {
-      nonce,
-      ...transferData,
+    const response = await client.post(API_ENDPOINTS.TRANSFER.EXECUTE, {
+      token,
     })
     return response.data
   },
+
+  /** @deprecated Prefer `execute` — legacy name used earlier in the app scaffold */
+  confirm: async (token: string) => transfersApi.execute(token),
 }

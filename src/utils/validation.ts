@@ -10,6 +10,9 @@ export const isValidPhone = (phone: string): boolean => {
   return phoneRegex.test(phone.replace(/\D/g, ''))
 }
 
+/** TapSwap Swagger: password minimum 6 characters (`LoginDto`) */
+export const meetsApiPasswordMinLength = (password: string, min = 6): boolean => password.length >= min
+
 export const isValidPassword = (password: string): { isValid: boolean; feedback?: string } => {
   const errors = []
   if (password.length < 8) errors.push('At least 8 characters')

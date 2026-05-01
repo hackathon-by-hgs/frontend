@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { View, ScrollView, TextInput, Pressable, Text, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
 import { useAuth } from '@/hooks/useAuth'
-import { isValidEmail, isValidPassword } from '@/utils/validation'
+import { isValidEmail, meetsApiPasswordMinLength } from '@/utils/validation'
 import { theme } from '@/theme'
 import { useRouter } from 'expo-router'
+import { useContext } from 'react'
+import { NotificationContext } from '@/contexts/NotificationContext'
 
 export default function LoginScreen() {
   const router = useRouter()
   const { login, loading, error: authError } = useAuth()
+  const notification = useContext(NotificationContext)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
@@ -24,8 +27,8 @@ export default function LoginScreen() {
 
     if (!password) {
       newErrors.password = 'Password is required'
-    } else if (!isValidPassword(password).isValid) {
-      newErrors.password = 'Password must be at least 8 characters'
+    } else if (!meetsApiPasswordMinLength(password)) {
+      newErrors.password = 'Password must be at least 6 characters'
     }
 
     setErrors(newErrors)
@@ -37,6 +40,7 @@ export default function LoginScreen() {
 
     try {
       await login(email, password)
+      notification?.showToast('Welcome back!', 'success')
     } catch (err) {
       // Error is handled by useAuth hook
     }

@@ -2,4 +2,5 @@
 export * from './api'
 export * from './nfc'
 export * from './ui'
-// TODO: Implement messages, permissions, features constants
+export * from './features'
+// TODO: Implement messages, permissions constants

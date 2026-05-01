@@ -8,13 +8,16 @@ export interface User {
   displayName?: string
   avatar?: string
   accountNumber?: string
+  /** Buyer / seller / admin — when returned by `/api/auth/me` */
+  role?: string
   createdAt?: Date
 }
 
 export interface AuthToken {
   accessToken: string
   refreshToken: string
-  expiresIn: number
+  /** Seconds until access token expiry, when provided */
+  expiresIn?: number
 }
 
 export interface LoginRequest {
@@ -23,9 +26,10 @@ export interface LoginRequest {
 }
 
 export interface SignupRequest {
-  phoneOrEmail: string
+  /** Swagger: `SignupDto.name` */
+  name: string
+  email: string
   password: string
-  displayName?: string
 }
 
 export interface OTPVerifyRequest {

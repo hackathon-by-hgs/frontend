@@ -45,7 +45,7 @@ export default function OTPScreen() {
     if (!validateForm()) return
 
     try {
-      await verifyOTP(otp, email)
+      await verifyOTP(email, otp)
     } catch (err) {
       // Error is handled by useAuth hook
     }
