@@ -1,52 +1,55 @@
-// useNFC.ts - NFC read/write operations
-import { useState, useCallback } from 'react'
+import NfcManager, { NfcTech, Ndef } from 'react-native-nfc-manager'
+import { useState } from 'react'
 
-export interface NFCPayload {
-  senderId: string
-  amount: number
-  token: string
-  timestamp: number
-  nonce: string
-}
+export function useNfc(){
+  const [isWriting,setIsWriting] = useState<boolean>(false)
+  const [isReading,setIsReading] = useState<boolean>(false)
+  const [error,setError] = useState<string | null>(null)
 
-export interface UseNFCReturn {
-  read: (timeout?: number) => Promise<NFCPayload>
-  write: (payload: NFCPayload) => Promise<void>
-  isReading: boolean
-  isWriting: boolean
-  error: string | null
-}
 
-export const useNFC = (): UseNFCReturn => {
-  const [isReading, setIsReading] = useState(false)
-  const [isWriting, setIsWriting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const read = useCallback(async (timeout = 15000): Promise<NFCPayload> => {
-    setIsReading(true)
-    try {
-      // TODO: Implement NFC reading
-      throw new Error('NFC reading not yet implemented')
-    } finally {
+  const write = async (token:string)=>{
+      try{
+        setIsWriting(true)
+        await NfcManager.requestTechnology(NfcTech.Ndef)
+        const bytes =Ndef.encodeMessage([Ndef.textRecord(token)])
+        if(bytes){
+          await NfcManager.ndefHandler.writeNdefMessage(bytes)
+        }
+
+      }catch(err){
+        setError("Failed to write Nfc tag")
+      }finally{
+        setIsWriting(false)
+        NfcManager.cancelTechnologyRequest()
+      }
+  }
+  const read = async():Promise<string | undefined>=>{
+    try{
+      setIsReading(true)
+      await NfcManager.requestTechnology(NfcTech.Ndef)
+      const tag = await NfcManager.getTag()
+      const ndefRecords =tag?.ndefMessage
+      const tokenRecord =ndefRecords?.[0]
+      const token = Ndef.text.decodePayload(tokenRecord?.payload as unknown as Uint8Array)
+      if (!token) throw new Error('Could not decode NFC payload')
+      return token
+    }catch(err){
+      setError("Could not read Nfc tag")
+      return undefined
+    }finally{
       setIsReading(false)
+      NfcManager.cancelTechnologyRequest()
     }
-  }, [])
+  }
 
-  const write = useCallback(async (payload: NFCPayload): Promise<void> => {
-    setIsWriting(true)
-    try {
-      // TODO: Implement NFC writing
-      throw new Error('NFC writing not yet implemented')
-    } finally {
-      setIsWriting(false)
-    }
-  }, [])
 
   return {
-    read,
     write,
-    isReading,
+    read,
     isWriting,
-    error,
+    isReading,
+    error
   }
+
 }

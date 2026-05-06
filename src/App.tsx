@@ -1,55 +1,29 @@
-// App.tsx - Root App Component
-import React, { useEffect, useState } from 'react'
-import { View, ActivityIndicator, Text } from 'react-native'
-import { initializeApiClient } from '@/services/api/client'
+// App.tsx
 import { AuthProvider } from '@/contexts/AuthContext'
 import { WalletProvider } from '@/contexts/WalletContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
-
-const RootApp = () => {
-  const [apiInitialized, setApiInitialized] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        await initializeApiClient()
-        setApiInitialized(true)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to initialize app')
-      }
-    }
-
-    initializeApp()
-  }, [])
-
-  if (!apiInitialized) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#007aff" />
-      </View>
-    )
-  }
-
-  if (error) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
-        <Text style={{ color: 'red', fontSize: 16, textAlign: 'center' }}>Error: {error}</Text>
-      </View>
-    )
-  }
-
-  return null
-}
+import  NfcManager  from 'react-native-nfc-manager'
+import { QueryProvider } from '@/providers/query.provider'
+import { Slot } from 'expo-router'
+import { useEffect } from 'react'
 
 export default function App() {
+  useEffect(() => {
+  NfcManager.start()
+  return () => {
+    NfcManager.cancelTechnologyRequest()
+  }
+}, [])
+
   return (
-    <NotificationProvider>
-      <AuthProvider>
-        <WalletProvider>
-          <RootApp />
-        </WalletProvider>
-      </AuthProvider>
-    </NotificationProvider>
+    <QueryProvider>
+      <NotificationProvider>
+        <AuthProvider>
+          <WalletProvider>
+            <Slot />
+          </WalletProvider>
+        </AuthProvider>
+      </NotificationProvider>
+    </QueryProvider>
   )
 }
